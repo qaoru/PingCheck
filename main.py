@@ -29,7 +29,10 @@ class pingThread(QThread):
         self.wait()
 
     def _ping_check(self, hostname, timecheck):
+        self.text_result = "Checking ..."
+        self.ui.lalbel_status.setText(self.text_result)
         self.ping_var = str(subprocess.Popen("ping %s" %self.hostname, stdout=subprocess.PIPE, creationflags=8).stdout.read())
+
 
         if "TTL" in self.ping_var:
             self.text_result = "PingCheck : SUCCESS"
