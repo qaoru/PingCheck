@@ -1,3 +1,4 @@
-17-03-2017 | 15:15:30	 5 secs of SUCCESS (Hostname : 8.8.8.8)
-17-03-2017 | 15:15:36	 5 secs of SUCCESS (Hostname : 8.8.8.8)
-17-03-2017 | 15:15:42	 5 secs of SUCCESS (Hostname : 8.8.8.8)
+17-03-2017 | 18:25:54	 PingCheck failed (Hostname : 8.8.8.1)
+17-03-2017 | 18:26:16	 PingCheck failed (Hostname : 8.8.8.1)
+17-03-2017 | 18:26:38	 PingCheck failed (Hostname : 8.8.8.1)
+17-03-2017 | 18:27:00	 PingCheck failed (Hostname : 8.8.8.1)
