@@ -1,5 +1,0 @@
-09-03-2017 | 23:05:43	 PingCheck failed (Hostname : google.fr)
-09-03-2017 | 23:05:46	 PingCheck failed (Hostname : google.fr)
-09-03-2017 | 23:05:49	 PingCheck failed (Hostname : google.fr)
-09-03-2017 | 23:05:52	 PingCheck failed (Hostname : google.fr)
-09-03-2017 | 23:05:59	 PingCheck failed (Hostname : google.fr)

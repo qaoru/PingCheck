@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import threading
 import os
 import subprocess
 import time
 import socket
 import sys
-import psutil
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -25,24 +23,26 @@ class pingThread(QThread):
         self.timecheck = timecheck
         self.ui = GUI
         self.now = int(time.time())
+        self.count = 0
 
     def __del__(self):
         self.wait()
 
     def _ping_check(self, hostname, timecheck):
-        self.ping_var = str(subprocess.Popen("ping %s" %self.hostname, stdout=subprocess.PIPE).stdout.read())
+        self.ping_var = str(subprocess.Popen("ping %s" %self.hostname, stdout=subprocess.PIPE, creationflags=8).stdout.read())
 
         if "TTL" in self.ping_var:
             self.text_result = "PingCheck : SUCCESS"
+            self.count += 1
         else:
             self.text_result = "PingCheck : FAIL"
+            self.count = 0
             report.write(time.strftime("%d-%m-%Y | %X", time.localtime()) + '\t PingCheck failed (Hostname : %s)\n'%self.hostname)
             report.flush()
 
         self.ui.lalbel_status.setText(self.text_result)
 
-        if (int(time.time()) >= (self.now + self.timecheck)):
-            print("OK")
+        if (int(time.time()) >= (self.now + self.timecheck)) and (self.count != 0):
             report.write(time.strftime("%d-%m-%Y | %X", time.localtime()) + '\t %s secs of SUCCESS '%self.timecheck + '(Hostname : %s)\n'%self.hostname)
             report.flush()
             self.now = int(time.time())
