@@ -10,7 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
+        MainWindow.setObjectName("PyPingCheck")
         MainWindow.resize(500, 360)
         MainWindow.setStyleSheet("")
         self.centralWidget = QtWidgets.QWidget(MainWindow)
@@ -75,4 +75,3 @@ class Ui_MainWindow(object):
         self.button_stop.setText(_translate("MainWindow", "Stop"))
         self.label_title.setText(_translate("MainWindow", "PyPingCheck v2.2"))
         self.lalbel_status.setText(_translate("MainWindow", "STATUS :"))
-
