@@ -8,13 +8,14 @@ from cx_Freeze import setup, Executable
 application_title = "PyPingCheck"
 main_python_file = "main.py"
 
-includefiles = ["ping.png"]
+includefiles = ["Icone/ping_icon.png"]
 
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
 "packages": ["os","sys","subprocess","time","socket"],
-"include_msvcr" : True
+"include_msvcr" : True,
+"include_files" : includefiles
 }
 
 base = None
@@ -25,7 +26,7 @@ if sys.platform == "win32":
 
 cible = Executable(
 script = "main.py",
-icon = "ping.ico",
+icon = "Icone/ping_icon.ico",
 base=base
 )
 

@@ -10,47 +10,36 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from mainwindow3 import Ui_MainWindow
-
-#On ouvre le fichier de report
-report = open("PingCheck_report.txt",'w')
+from mainwindow4 import Ui_MainWindow
 
 
 #On cree un thread pour les operations de ping
 class pingThread(QThread):
-"""
-initialisation du thread
-:param:hostname: ip entree en argument (str)
-:param:timecheck: temps entre en argument (int)
-:param:GUI: interface graphique entree en argument (classe Ui_MainWindow de PyQt5)
-"""
-    def __init__(self,hostname, timecheck,GUI):
+
+
+    def __init__(self,hostname, timecheck,GUI, report):
         QThread.__init__(self)
 
         #On initialise les variables locales de la classe
         self.hostname = hostname
         self.timecheck = timecheck
         self.ui = GUI
+        self.report = open(report + "/PyPingCheck_report.txt",'a')
 
-        #On recupere le temps de l'ouverture du thread
-        self.now = int(time.time())
+        #On recupere le temps de l'ouverture du thread comme temps du dernier succes
+        self.successtime= int(time.time())
 
-        #On initialise un compteur pour les pings successifs reussis
-        self.count = 0
+        #On initialise une variable d'erreur de ping
+        self.pingerror = False
 
     def __del__(self):
         self.wait()
-"""
-fonction _ping_check
-:param:hostname: ip (str)
-:param:timecheck: temps (int)
-"""
+
     def _ping_check(self, hostname, timecheck):
 
         #On change le texte du resultat avant de faire un ping
         self.text_result = "PingCheck : Checking ..."
-        self.ui.lalbel_status.setText(self.text_result)
-
+        self.ui.label_status.setText(self.text_result)
         #On ping l'ip entree en argument
         #On redirige la sortie de la commande vers une variable ping_var
         #On desactive l'affichage de la console a l'appel de subprocess
@@ -60,30 +49,33 @@ fonction _ping_check
         if "TTL" in self.ping_var:
             self.text_result = "PingCheck : SUCCESS"
 
-            #On incremente le compteur si c'est le cas
-            self.count += 1
+            #Si la variable d'erreur est vraie, on reset le temps du dernier succes
+            if self.pingerror == True:
+                self.successtime = int(time.time())
+
+                #On remet la variable d'erreur sur faux
+                self.pingerror = False
+
+
         else:
             self.text_result = "PingCheck : FAIL"
-            #On reset le compteur sinon
-            self.count = 0
+            #On met la variable d'erreur a l'etat vrai
+            self.pingerror = True
+
             #On log dans le fichier si l'ip ne repond pas
-            report.write(time.strftime("%d-%m-%Y | %X", time.localtime()) + '\t PingCheck failed (Hostname : %s)\n'%self.hostname)
-            report.flush()
+            self.report.write(time.strftime("%d-%m-%Y | %X", time.localtime()) + '\t PingCheck failed (Hostname : %s)\n'%self.hostname)
+            self.report.flush()
 
         #On update le texte du resultat
-        self.ui.lalbel_status.setText(self.text_result)
+        self.ui.label_status.setText(self.text_result)
 
 
         #On log la reponse consecutive de l'ip pendant X sec
-        if (int(time.time()) >= (self.now + self.timecheck)) and (self.count != 0):
-            report.write(time.strftime("%d-%m-%Y | %X", time.localtime()) + '\t %s secs of SUCCESS '%self.timecheck + '(Hostname : %s)\n'%self.hostname)
-            report.flush()
-            self.now = int(time.time())
+        if (int(time.time()) >= (self.successtime + self.timecheck)):
+            self.report.write(time.strftime("%d-%m-%Y | %X", time.localtime()) + '\t %s secs of SUCCESS '%self.timecheck + '(Hostname : %s)\n'%self.hostname)
+            self.report.flush()
+            self.successtime = int(time.time())
 
-"""
-appel de la fonction de ping en boucle
-delai de 3 secondes avant de la relancer
-"""
     def run(self):
         while True:
             self._ping_check(self.hostname, self.timecheck)
@@ -97,19 +89,25 @@ class ShipHolderApplication(QMainWindow):
         super (self.__class__, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.ui.input_file.setText("Report directory")
         self.ui.button_start.clicked.connect(self.start_thread)
+        self.ui.button_file.clicked.connect(self.get_file)
 
 
-"""
-fonction check_input
-recupere les valeurs des widgets d'input_ip
-test sur le host avec le module socket
-conversion de l'input time
-renvoie une liste de booleens
-"""
+    def get_file(self):
+        self.report_file_path = QFileDialog.getExistingDirectory(self)
+        self.ui.input_file.setText(self.report_file_path)
+
     def check_input(self):
         #On initialise la liste sur True
-        self.check = [True,True]
+        self.check = [True,True,True]
+
+        #On recupere le chemin du rapport
+        self.report = str(self.ui.input_file.text())
+        if os.path.isdir(self.report) != True:
+            self.ui.input_file.setText("Error : Please select a directory")
+            self.check[2] = False
+
         #On recupere la valeur d'input de l'host
         self.host = str(self.ui.input_ip.text())
 
@@ -139,15 +137,13 @@ renvoie une liste de booleens
         #On retourne la liste
         return self.check
 
-"""
-fonction start_thread
-si les parametres sont corrects, on lance le thread de ping
-"""
+
     def start_thread(self):
         #Uniquement si les input sont valides
-        if self.check_input() == [True,True]:
+        if self.check_input() == [True,True,True]:
+
             #On charge le thread
-            self.get_thread = pingThread(self.host,self.period,self.ui)
+            self.get_thread = pingThread(self.host,self.period,self.ui, self.report)
             #On l'execute
             self.get_thread.start()
 
@@ -157,6 +153,10 @@ si les parametres sont corrects, on lance le thread de ping
             #On desactive les input tant que le thread tourne
             self.ui.input_ip.setDisabled(True)
             self.ui.input_time.setDisabled(True)
+            self.ui.input_file.setDisabled(True)
+
+            #On desactive le bouton de recherche
+            self.ui.button_file.setEnabled(False)
 
             #On connecte le bouton stop a la fonction de stop
             self.ui.button_stop.clicked.connect(self.end_thread)
@@ -164,16 +164,14 @@ si les parametres sont corrects, on lance le thread de ping
             #On desactive le bouton start pour ne pas lancer d'autre thread en meme temps
             self.ui.button_start.setEnabled(False)
 
-"""
-fonction end_thread
-arrete le thread courant
-inverse l'etat actif/inactif des widget
-"""
+
     def end_thread(self):
         self.get_thread.terminate()
         self.ui.button_start.setEnabled(True)
+        self.button_file.setEnabled(True)
         self.ui.input_ip.setDisabled(False)
         self.ui.input_time.setDisabled(False)
+        self.ui.input_file.setDisabled(False)
         self.ui.button_stop.setEnabled(False)
 
 
