@@ -34,4 +34,5 @@ FORMS    += mainwindow.ui \
     dialog.ui
 
 DISTFILES += \
-    main.py
+    main.py \
+    Est2i.png
