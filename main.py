@@ -10,7 +10,7 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from mainwindow4 import Ui_MainWindow
+from mainwindow_est2i import Ui_MainWindow
 
 
 #On cree un thread pour les operations de ping
@@ -40,7 +40,6 @@ class pingThread(QThread):
         #On change le texte du resultat avant de faire un ping
         self.text_result = "PingCheck : Checking ..."
         self.ui.label_status.setText(self.text_result)
-        self.ui.label_status.setStyleSheet("color: rgba(0,0,0,1);")
         #On ping l'ip entree en argument
         #On redirige la sortie de la commande vers une variable ping_var
         #On desactive l'affichage de la console a l'appel de subprocess
@@ -69,7 +68,6 @@ class pingThread(QThread):
 
         #On update le texte du resultat
         self.ui.label_status.setText(self.text_result)
-        self.ui.label_status.setStyleSheet("color: rgba(255,0,0,1);")
 
 
         #On log la reponse consecutive de l'ip pendant X sec
@@ -170,7 +168,7 @@ class ShipHolderApplication(QMainWindow):
     def end_thread(self):
         self.get_thread.terminate()
         self.ui.button_start.setEnabled(True)
-        self.button_file.setEnabled(True)
+        self.ui.button_file.setEnabled(True)
         self.ui.input_ip.setDisabled(False)
         self.ui.input_time.setDisabled(False)
         self.ui.input_file.setDisabled(False)
