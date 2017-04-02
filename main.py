@@ -40,6 +40,7 @@ class pingThread(QThread):
         #On change le texte du resultat avant de faire un ping
         self.text_result = "PingCheck : Checking ..."
         self.ui.label_status.setText(self.text_result)
+        self.ui.label_status.setStyleSheet("color: rgba(0,0,0,1);")
         #On ping l'ip entree en argument
         #On redirige la sortie de la commande vers une variable ping_var
         #On desactive l'affichage de la console a l'appel de subprocess
@@ -68,6 +69,7 @@ class pingThread(QThread):
 
         #On update le texte du resultat
         self.ui.label_status.setText(self.text_result)
+        self.ui.label_status.setStyleSheet("color: rgba(255,0,0,1);")
 
 
         #On log la reponse consecutive de l'ip pendant X sec
